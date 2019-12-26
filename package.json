@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-prefer-logger",
-  "version": "1.0.0",
+  "version": "0.0.3",
   "description": "eslint plugin to prefer to use logger.",
   "main": "lib/index.js",
   "scripts": {
