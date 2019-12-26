@@ -1,0 +1,49 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: node:10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+      - run: npm ci
+      - run: npm test
+      - save_cache:
+          paths:
+            - node_modules
+            - ~/.npm
+          key: v1-dependencies-{{ checksum "package.json" }}
+  deploy:
+    docker:
+      - image: node:10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-cache-{{ checksum "package.json" }}
+            - npm-cache
+      - run: npm ci
+      - run:
+          name: Login npm
+          command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+      - run:
+          name: Publish
+          command: |
+            npm publish
+workflows:
+  version: 2
+  build_pipeline:
+    jobs:
+      - build
+      - deploy:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
