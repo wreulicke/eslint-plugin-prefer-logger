@@ -80,15 +80,13 @@ const rule: Rule.RuleModule = {
         }
         options.base = path.join(context.getCwd(), options.base)
         const filename = context.getFilename()
-        let useModule: boolean
-         // TODO: not supported direct import
-         // not supported root import 
-        if (options.logger.indexOf("/") < 0) {
-            useModule = true
+        if (options.logger.startsWith("~/")) { // root import
+            // do nothing
+        } else if (options.logger.startsWith("@")) { // scoped module import
+            // do nothing
+        } else if (options.logger.indexOf("/") < 0) { // maybe relative import or direct import
+            // do nothing
         } else {
-            useModule = false
-        }
-        if (!useModule) {
             options.logger = path.relative(filename, path.join(options.base, options.logger))
         }
 
