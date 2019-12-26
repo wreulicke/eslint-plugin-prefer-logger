@@ -61,7 +61,9 @@ logger.error("test")
 }
 ```
 
+## TODO
 
+* variable declaration with `require` function instead of import statement
 
 ## LICENSE
 
