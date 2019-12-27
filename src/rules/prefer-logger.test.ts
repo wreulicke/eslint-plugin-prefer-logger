@@ -23,6 +23,10 @@ tester.run("prefer-logger", rule, {
   invalid: [
     {
       code: `console.error("test")`,
+      output: [
+        `import logger from "../../utils/logger.js"`,
+        `logger.error("test")`
+      ].join("\n"),
       options: [{
         logger: "utils/logger.js",
         base: "src",
@@ -30,15 +34,6 @@ tester.run("prefer-logger", rule, {
       filename: "src/app/index.js",
       errors: [{
         messageId: "prefer-logger",
-        suggestions: [
-          {
-            messageId: "prefer-logger",
-          },
-          {
-            messageId: "import-logger",
-            output: [`import logger from "../../utils/logger.js"`, `console.error("test")`].join("\n")
-          }
-        ]
       }],
     },
     {
@@ -57,15 +52,15 @@ tester.run("prefer-logger", rule, {
     },
     {
       code: `console.error("test")`,
+      output: [
+        `import logger from "logger"`,
+        `logger.error("test")`
+      ].join("\n"),
       options: [{
         logger: "logger",
       }],
       errors: [{
-        messageId: "prefer-logger",
-        suggestions: [
-          { messageId: "prefer-logger", output: `logger.error("test")` },
-          { messageId: "import-logger", output: [`import logger from "logger"`, `console.error("test")`].join("\n") },
-        ]
+        messageId: "prefer-logger"
       }],
     },
   ],

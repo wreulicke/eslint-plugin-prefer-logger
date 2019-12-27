@@ -7,10 +7,6 @@ declare module "eslint" {
         interface RuleContext {
             getCwd(): string
         }
-
-        interface ReportDescriptorOptions {
-            suggest?: ReportDescriptor[]
-        }
     }
 }
 
@@ -75,7 +71,7 @@ const rule: Rule.RuleModule = {
         }
         const options: { logger: string, loggerName: string, base: string } = {
             logger: context.options[0].logger,
-            loggerName: context.options?.[0]?.loggerName ? context.options[0].loggerName: "logger",
+            loggerName: context.options?.[0]?.loggerName ? context.options[0].loggerName : "logger",
             base: context.options?.[0]?.base ? context.options[0].base : "",
         }
         options.base = path.join(context.getCwd(), options.base)
@@ -102,37 +98,32 @@ const rule: Rule.RuleModule = {
                 node,
                 loc: node.loc,
                 messageId: "prefer-logger",
-                suggest: [{
-                    node,
-                    messageId: "prefer-logger",
-                    fix(fixer) {
-                        const logLevel =
-                            node.property.name === "log" ? "info" : node.property.name
-                        return fixer.replaceText(
+                fix(fixer) {
+                    const logLevel =
+                        node.property.name === "log" ? "info" : node.property.name
+                    const patch = [
+                        fixer.replaceText(
                             node.parent,
                             `${
                             options.loggerName
                             }.${logLevel}(${node.parent.arguments
                                 .map((arg: Expression) => sourceCode.getText(arg))
                                 .join(", ")})`
+                        ),
+                    ]
+                    const loggerIsFound = scope.childScopes.some(
+                        s => getVariableByName(s, options.loggerName) != null
+                    )
+                    if (!loggerIsFound && onetime) {
+                        onetime = false
+                        patch.push(
+                            fixer.insertTextBefore(
+                                program, `import ${options.loggerName} from "${options.logger}"\n`
+                            )
                         )
                     }
-                }],
-            }
-            const loggerIsFound = scope.childScopes.some(
-                s => getVariableByName(s, options.loggerName) != null
-            )
-            if(!loggerIsFound && onetime) {
-                onetime = false
-                descriptor.suggest!.push({
-                    node: program,
-                    loc: program.loc,
-                    messageId: "import-logger",
-                    fix: fixer => fixer.insertTextBefore(
-                        program,
-                        `import ${options.loggerName} from "${options.logger}"\n`
-                    )
-                })
+                    return patch as any
+                }
             }
             context.report(descriptor)
         }
