@@ -17,6 +17,7 @@ jobs:
             - node_modules
             - ~/.npm
           key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm run prepublishOnly
   deploy:
     docker:
       - image: node:10
