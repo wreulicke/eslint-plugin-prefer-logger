@@ -20,7 +20,9 @@ module.exports = {
 
 ## prefer-logger/prefer-logger
 
-> Restrict console.log and Suggest logger
+Restrict console.log and Suggest logger
+
+:wrench: The --fix option on the command line can automatically fix some of the problems reported by this rule.
 
 ### 📖 Rule Details
 
